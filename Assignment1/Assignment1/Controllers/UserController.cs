@@ -4,14 +4,17 @@ using System.Linq;
 
 namespace Assignment1.Controllers
 {
+    // Contains all the Features of Api.
     [ApiController]
+    // Route for Controller Defined.
     [Route("[controller]")]
     public class UserController : ControllerBase
     {
+        // Users List.
         private static List<User> s_usersList = new List<User>();
-
         // Route to get all Users.
         [HttpGet("getallusers")]
+        // Method to get all the users from Api
         public IActionResult GetAllUsers()
         {
             try
@@ -22,10 +25,10 @@ namespace Assignment1.Controllers
             {
                 return BadRequest($"An error Occured : {ex.Message}");
             }
-
         }
         // Route to get user by id parameter.
         [HttpGet("getuser/{id}")]
+        // Method to get all the users with Id from Api.
         public IActionResult GetUserByID(int Id)
         {
             try
@@ -45,6 +48,7 @@ namespace Assignment1.Controllers
         // Add a new User through Post Man in 
         // the List.
         [HttpPost("adduser")]
+        // Method to add all the users from Api.
         public IActionResult AddUsers(User newUser)
         {
             try
@@ -96,7 +100,7 @@ namespace Assignment1.Controllers
         {
             try
             {
-                User deleteUser = s_usersList.First(c => c.Id == newUser.Id && c.Email == newUser.Email && c.Password == newUser.Password && c.Age == newUser.Age);
+                User deleteUser = s_usersList.First(c => c.Id == newUser.Id);
                 s_usersList.Remove(deleteUser);
                 return Ok("User Deleted Successfully");
             }
@@ -107,5 +111,6 @@ namespace Assignment1.Controllers
         }
     }
 }
+
 
 
