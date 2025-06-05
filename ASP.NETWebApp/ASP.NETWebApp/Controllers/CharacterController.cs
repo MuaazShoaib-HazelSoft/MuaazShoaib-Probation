@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ASP.NETWebApp.Models;
 using ASP.NETWebApp.Services.CharacterService;
+using ASP.NETWebApp.DTO.Character;
 namespace ASP.NETWebApp.Controllers
   
 {
@@ -10,7 +11,7 @@ namespace ASP.NETWebApp.Controllers
     [Route("[controller]")]
     /// </summary> Character class Controller defined to add,update,delete 
     /// values in the list and fetch them all or single by the defined routes.
-    public class CharacterController:ControllerBase
+    public class CharacterController : ControllerBase
     {
         private readonly ICharacterService _characterService;
         public CharacterController(ICharacterService characterService)
@@ -27,13 +28,14 @@ namespace ASP.NETWebApp.Controllers
         [HttpGet("GetAll")]
         public async Task<IActionResult> Get()
         {
-            return Ok(_characterService.GetAllCharacters());
+
+            return Ok(await _characterService.GetAllCharacters());
         }
         // Route to get first character.
         [HttpGet("GetFirstCharacter")]
         public async Task<IActionResult> GetFirst()
         {
-            return Ok( await _characterService.GetFirstCharacter());
+            return Ok(await _characterService.GetFirstCharacter());
         }
         // Route to get character by id parameter.
         [HttpGet("{id}")]
@@ -44,7 +46,7 @@ namespace ASP.NETWebApp.Controllers
         // Add a new character through Post Man in 
         // the list.
         [HttpPost("addCharacter")]
-        public async Task<IActionResult> AddCharacter(Character newCharacter)
+        public async Task<IActionResult> AddCharacter(AddCharacterDTO newCharacter)
         {
             try
             {
@@ -53,44 +55,23 @@ namespace ASP.NETWebApp.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest($"An error Occured:{ ex.Message}");
+                return BadRequest($"An error Occured:{ex.Message}");
             }
         }
         // Update the  character through Post Man in 
         // the list.
         [HttpPut("updateCharacter")]
-        public async Task<IActionResult> UpdateCharacter(Character newCharacter)
+        public async Task<IActionResult> UpdateCharacter(UpdateCharacterDTO newCharacter)
         {
-            try
-            {
-                Character updatedCharacter = s_charactersList.First(c => c.Id == newCharacter.Id);
-                updatedCharacter.Id = newCharacter.Id;
-                updatedCharacter.Name = newCharacter.Name;
-                updatedCharacter.Description = newCharacter.Description;
-                updatedCharacter.Type = newCharacter.Type;
-                return Ok("Character Updated Successfully");
+            return Ok(await _characterService.UpdateCharacter(newCharacter));
 
-            }
-            catch (Exception ex)
-            {
-                return BadRequest($"An error occurred: {ex.Message}");
-            }   
         }
         // Update the  character through Post Man in 
         // the list.
-        [HttpDelete("deleteCharacter")]
-        public async Task <IActionResult> DeleteCharacter(Character newCharacter)
+        [HttpDelete("deleteCharacter/{id}")]
+        public async Task <IActionResult> DeleteCharacter(int Id)
         {
-            try
-            {
-                Character deleteCharacter = s_charactersList.First(c => c.Id == newCharacter.Id);
-                s_charactersList.Remove(deleteCharacter);
-                return Ok("Character Deleted Successfully");
-            }
-            catch (Exception ex)
-            {
-                return BadRequest($"An error occurred: {ex.Message}");
-            }
+            return Ok(await _characterService.DeleteCharacter(Id));
         }
     }
 }
