@@ -1,4 +1,4 @@
-﻿namespace Assignment1.Models
+﻿namespace UserManagementSystem.Models
 {
     public class User
     {

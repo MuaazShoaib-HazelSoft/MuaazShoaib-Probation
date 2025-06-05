@@ -1,108 +1,103 @@
-﻿using Assignment1.Models;
+﻿using UserManagementSystem.Models;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq;
+using UserManagementSystem.Services.UserService;
 
-namespace Assignment1.Controllers
+
+namespace UserManagement.Controllers
 {
-    // Contains all the Features of Api.
+    /// <summary>
+    /// API Controller for managing Users.
+    /// </summary>
     [ApiController]
-    // Route for Controller Defined.
     [Route("[controller]")]
     public class UserController : ControllerBase
     {
-        // Users List.
-        private static List<User> s_usersList = new List<User>();
-        // Route to get all Users.
+        // In-memory list to store users
+        private static readonly List<User> s_usersList = new List<User>();
+        private readonly IUserService _userService;
+
+        public UserController(IUserService userService)
+        {
+            _userService = userService;
+        }
+        /// <summary>
+        /// Gets all registered users.
+        /// </summary>
         [HttpGet("getallusers")]
-        // Method to get all the users from Api
         public IActionResult GetAllUsers()
         {
+           
             try
             {
-                return Ok(s_usersList);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest($"An error Occured : {ex.Message}");
-            }
-        }
-        // Route to get user by id parameter.
-        [HttpGet("getuser/{id}")]
-        // Method to get all the users with Id from Api.
-        public IActionResult GetUserByID(int Id)
-        {
-            try
-            {
-                User user = s_usersList.FirstOrDefault(c => c.Id == Id);
-                if (user == null)
-                {
-                    return NotFound($"No user found with ID = {Id}");
-                }
-                return Ok(user);
+                return Ok(_userService.GetAllUsers());
             }
             catch (Exception ex)
             {
                 return BadRequest($"An error occurred: {ex.Message}");
             }
         }
-        // Add a new User through Post Man in 
-        // the List.
-        [HttpPost("adduser")]
-        // Method to add all the users from Api.
-        public IActionResult AddUsers(User newUser)
-        {
-            try
-            {
-               
-                User findUser = s_usersList.FirstOrDefault(c => c.Id == newUser.Id || c.Email == newUser.Email);
-                if (findUser != null)
-                {
-                    return BadRequest("User of this Id or Email already Exists");
-                }
-                s_usersList.Add(newUser);
-                return Ok("User Added Successfully");
-            }
-            catch (Exception ex)
-            {
-                return BadRequest($"An error Occured:{ex.Message}");
-            }
-        }
-        // Update the User through Post Man in 
-        // the list.
-        [HttpPut("updateuser/{id}")]
-        public IActionResult UpdateUserDetails(int Id,User newUser)
-        {
-            try
-            {
-                User findUser = s_usersList.First(c => c.Id == Id || c.Email == newUser.Email);
-                if (findUser != null)
-                {
-                    return BadRequest("User of this Id or Email already Exists");
-                }
-                User updatedUser = s_usersList.First(c => c.Id == Id);
-                updatedUser.Id = newUser.Id;
-                updatedUser.Name = newUser.Name;
-                updatedUser.Email = newUser.Email;
-                updatedUser.Password = newUser.Password;
-                updatedUser.Age = newUser.Age;
-                return Ok("User Updated Successfully");
 
+        /// <summary>
+        /// Gets a user by their Id.
+        /// </summary>
+        [HttpGet("getuserbyid/{id}")]
+        public IActionResult GetUserById(int Id)
+        {
+            try
+            {
+                return Ok(_userService.GetUserById(Id));
             }
             catch (Exception ex)
             {
                 return BadRequest($"An error occurred: {ex.Message}");
             }
         }
-        // Delete the  character through Post Man in 
-        // the list.
-        [HttpDelete("deleteUser")]
-        public IActionResult DeleteUser(User newUser)
+
+        /// <summary>
+        /// Adds a new user.
+        /// </summary>
+        [HttpPost("adduser")]
+        public IActionResult AddUser(User newUser)
         {
             try
             {
-                User deleteUser = s_usersList.First(c => c.Id == newUser.Id);
-                s_usersList.Remove(deleteUser);
-                return Ok("User Deleted Successfully");
+                _userService.AddUser(newUser);
+                return Ok("User added successfully.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"An error occurred: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Updates an existing user's details.
+        /// </summary>
+        [HttpPut("updateuserdetails/{id}")]
+        public IActionResult UpdateUserDetails(int Id, User updatedUser)
+        {
+            try
+            {
+                _userService.UpdateUser(Id, updatedUser);
+                return Ok("User updated successfully.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"An error occurred: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Deletes a user by Name and Email.
+        /// </summary>
+        [HttpDelete("deleteuser")]
+        public IActionResult DeleteUser(User userToDelete)
+        {
+          
+            try
+            {
+                _userService.DeleteUser(userToDelete);
+                return Ok("User deleted successfully.");
             }
             catch (Exception ex)
             {
@@ -111,6 +106,3 @@ namespace Assignment1.Controllers
         }
     }
 }
-
-
-
