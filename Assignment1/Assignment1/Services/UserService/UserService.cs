@@ -16,7 +16,7 @@ namespace UserManagementSystem.Services.UserService
 
         private readonly IMapper _userMapper;
 
-        // Compiled email regex for better performance
+        // Regular Expression to check email pattern.
         private static readonly Regex EmailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
 
         public UserService(IMapper mapper)
@@ -41,7 +41,7 @@ namespace UserManagementSystem.Services.UserService
             if (!IsValidUserFields(newUser.Name, newUser.Email, newUser.Password, newUser.Age))
             {
                 return new ApiResponse<AddUserDto>(
-                    null, "Name, Email, Password, and a valid Age (1-100) are required", 400, false);
+                    null, "Name, Email, Password, and a valid Age (18-100) are required", 400, false);
             }
 
             if (newUser.Age < 18)
@@ -52,7 +52,7 @@ namespace UserManagementSystem.Services.UserService
             if (newUser.Password.Length < 5)
             {
                 return new ApiResponse<AddUserDto>(
-                    null, "Password must be of at least 5 digits", 404, false);
+                    null, "Password must be of at least 5 digits", 400, false);
             }
             if (!IsValidEmail(newUser.Email))
             {

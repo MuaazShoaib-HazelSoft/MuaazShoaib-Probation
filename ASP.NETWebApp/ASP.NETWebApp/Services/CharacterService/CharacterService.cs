@@ -1,23 +1,21 @@
-﻿using ASP.NETWebApp.DTO.Character;
+﻿using ASP.NETWebApp.Data;
+using ASP.NETWebApp.DTO.Character;
 using ASP.NETWebApp.Models;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
 
 namespace ASP.NETWebApp.Services.CharacterService
 {
     public class CharacterService : ICharacterService
     {
-        private static List<Character> s_charactersList = new List<Character>
-        {
-            new Character{Id = 1, Name = "Muaaz", Description = "Good Student", Type ="Knight"},
-            new Character { Id = 2, Name = "Thanos", Description = "Mad Titan", Type = "Villain" },
-            new Character { Id = 3, Name = "Iron Man", Description = "Avengers", Type = "Hero" }
-        };
         private readonly IMapper _mapper;
+        private readonly DataContext _context;
 
-        public CharacterService(IMapper mapper)
+        public CharacterService(IMapper mapper,DataContext context)
         {
             _mapper = mapper;
+            _context = context;
         }
         public async Task<ServiceResponse<string>> AddCharacter(AddCharacterDTO newCharacter)
         {
@@ -25,8 +23,8 @@ namespace ASP.NETWebApp.Services.CharacterService
             try
             {
                 Character character = _mapper.Map<Character>(newCharacter);
-                character.Id = s_charactersList.Max(c => c.Id) + 1;
-                s_charactersList.Add(character);
+                await _context.Characters.AddAsync(character);
+                await _context.SaveChangesAsync();
                 response.Message = "Character Added Succesfully";
                 
             }
@@ -42,20 +40,23 @@ namespace ASP.NETWebApp.Services.CharacterService
         public async Task<ServiceResponse<List<GetCharacterDTO>>> GetAllCharacters()
         {
             ServiceResponse<List<GetCharacterDTO>> serviceResponse = new ServiceResponse<List<GetCharacterDTO>>();
-            serviceResponse.Data = _mapper.Map<List<GetCharacterDTO>>(s_charactersList); 
+            List<Character> dbCharacters = await _context.Characters.ToListAsync();
+            serviceResponse.Data = _mapper.Map<List<GetCharacterDTO>>(dbCharacters); 
             return serviceResponse;
         }
         public async Task<ServiceResponse<GetCharacterDTO>> GetFirstCharacter()
         {
             ServiceResponse<GetCharacterDTO> serviceResponse = new ServiceResponse<GetCharacterDTO>();
-            serviceResponse.Data = _mapper.Map<GetCharacterDTO>(s_charactersList[0]);
+            Character dbCharacter = await _context.Characters.FindAsync(1);
+            serviceResponse.Data = _mapper.Map<GetCharacterDTO>(dbCharacter);
             return serviceResponse;
         }
 
         public async Task<ServiceResponse<GetCharacterDTO>> GetCharacterById(int id)
         {
             ServiceResponse<GetCharacterDTO> serviceResponse = new ServiceResponse<GetCharacterDTO>();
-            serviceResponse.Data = _mapper.Map <GetCharacterDTO>(s_charactersList.FirstOrDefault(c => c.Id == id));
+            Character dbCharacter = await _context.Characters.FirstAsync(c => c.Id == id);
+            serviceResponse.Data = _mapper.Map <GetCharacterDTO>(dbCharacter);
             return serviceResponse;
         }
         public async Task<ServiceResponse<string>> UpdateCharacter(UpdateCharacterDTO newCharacter)
@@ -63,7 +64,7 @@ namespace ASP.NETWebApp.Services.CharacterService
             ServiceResponse<string> serviceResponse = new ServiceResponse<string>();
             try
             {
-                Character existingCharacter = s_charactersList.FirstOrDefault(c => c.Id == newCharacter.Id);
+                Character existingCharacter = await _context.Characters.FirstAsync(c => c.Id == newCharacter.Id);
                 if (existingCharacter == null)
                 {
                     serviceResponse.Message = $"Character with Id {newCharacter.Id} not found.";
@@ -72,6 +73,8 @@ namespace ASP.NETWebApp.Services.CharacterService
                     return serviceResponse;
                 }
                 _mapper.Map(newCharacter, existingCharacter);
+                await _context.SaveChangesAsync();
+                serviceResponse.Message = "Character Updated Successfully";
                 serviceResponse.Success = true;
                 serviceResponse.httpCode = 200;
             }
@@ -90,16 +93,20 @@ namespace ASP.NETWebApp.Services.CharacterService
             try
             {
            
-                Character deleteCharacter = s_charactersList.First(c => c.Id == Id);
+                Character deleteCharacter = await _context.Characters.FirstAsync(c => c.Id == Id);
                 if (deleteCharacter == null)
                 {
-                    serviceResponse.Message = $"Character with Id {deleteCharacter.Id} not found.";
+                    serviceResponse.Message = $"Character with Id {Id} not found.";
                     serviceResponse.Success = false;
                     serviceResponse.httpCode = 404;
                     return serviceResponse;
                 }
-                s_charactersList.Remove(deleteCharacter);
-                
+                 _context.Characters.Remove(deleteCharacter);
+                await _context.SaveChangesAsync();
+                serviceResponse.Message = "Character Deleted Successfully";
+                serviceResponse.Success = true;
+                serviceResponse.httpCode = 200;
+
             }
             catch (Exception ex)
             {

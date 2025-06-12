@@ -21,7 +21,7 @@ namespace UserManagementSystem.Utils
 
                 return new BadRequestObjectResult(new ApiResponse<object>
                 (
-                    modelState,
+                    errors,
                     "Validation failed",
                     400,
                     false
