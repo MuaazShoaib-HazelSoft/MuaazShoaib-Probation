@@ -1,6 +1,7 @@
 ﻿using ASP.NETWebApp.Models;
 using ASP.NETWebApp.DTO.Character;
 using AutoMapper;
+using ASP.NETWebApp.DTO.Student;
 
 namespace ASP.NETWebApp
 {
@@ -11,7 +12,9 @@ namespace ASP.NETWebApp
             CreateMap<Character, GetCharacterDTO>();
             CreateMap<AddCharacterDTO, Character>();
             CreateMap<UpdateCharacterDTO, Character>();
-            
+            CreateMap<Student, GetStudentDTO>();
+            CreateMap<AddStudentDTO, Student>();
+            CreateMap<UpdateStudentDTO, Student>();
         }
     }
 }

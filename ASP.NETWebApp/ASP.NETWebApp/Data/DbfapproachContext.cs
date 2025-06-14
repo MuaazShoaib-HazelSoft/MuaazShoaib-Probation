@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using ASP.NETWebApp.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace ASP.NETWebApp.Models;
+namespace ASP.NETWebApp.Data;
 
 public partial class DbfapproachContext : DbContext
 {

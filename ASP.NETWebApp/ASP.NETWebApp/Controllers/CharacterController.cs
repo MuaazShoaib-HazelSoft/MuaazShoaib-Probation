@@ -18,12 +18,6 @@ namespace ASP.NETWebApp.Controllers
         {
             _characterService = characterService;
         }
-        private static List<Character> s_charactersList = new List<Character>
-        {
-            new Character{Id = 1, Name = "Muaaz", Description = "Good Student", Type ="Knight"},
-            new Character { Id = 2, Name = "Thanos", Description = "Mad Titan", Type = "Villain" },
-            new Character { Id = 3, Name = "Iron Man", Description = "Avengers", Type = "Hero" }
-        };
         // Route to get all characters
         [HttpGet("GetAll")]
         public async Task<IActionResult> Get()
