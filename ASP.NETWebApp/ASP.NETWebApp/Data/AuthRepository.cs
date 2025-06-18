@@ -1,6 +1,7 @@
 ﻿using ASP.NETWebApp.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
@@ -32,9 +33,9 @@ namespace ASP.NETWebApp.Data
                 serviceResponse.Message = "Password doesnt Match.";
                 return serviceResponse;
             }
+            serviceResponse.Data = CreateToken(user);
             serviceResponse.Success = true;
             serviceResponse.Message = "Logged In Successfully";
-            serviceResponse.Data = CreateToken(user);
             return serviceResponse;
         }
 
@@ -97,7 +98,15 @@ namespace ASP.NETWebApp.Data
                 Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:Token").Value)
             );
             SigningCredentials creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            return string.Empty;
+            SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.Now.AddDays(1),
+                SigningCredentials = creds
+            };
+            JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
+            SecurityToken token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
         }
     }
 }

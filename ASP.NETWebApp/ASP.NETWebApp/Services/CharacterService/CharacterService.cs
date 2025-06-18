@@ -2,8 +2,10 @@
 using ASP.NETWebApp.DTO.Character;
 using ASP.NETWebApp.Models;
 using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using System.Security.Claims;
 
 namespace ASP.NETWebApp.Services.CharacterService
 {
@@ -11,11 +13,13 @@ namespace ASP.NETWebApp.Services.CharacterService
     {
         private readonly IMapper _mapper;
         private readonly DataContext _context;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public CharacterService(IMapper mapper,DataContext context)
+        public CharacterService(IMapper mapper,DataContext context, IHttpContextAccessor httpContextAccessor)
         {
             _mapper = mapper;
             _context = context;
+            _httpContextAccessor = httpContextAccessor;
         }
         public async Task<ServiceResponse<string>> AddCharacter(AddCharacterDTO newCharacter)
         {
@@ -54,6 +58,7 @@ namespace ASP.NETWebApp.Services.CharacterService
 
         public async Task<ServiceResponse<GetCharacterDTO>> GetCharacterById(int id)
         {
+            var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier);
             ServiceResponse<GetCharacterDTO> serviceResponse = new ServiceResponse<GetCharacterDTO>();
             Character dbCharacter = await _context.Characters.FirstAsync(c => c.Id == id);
             serviceResponse.Data = _mapper.Map <GetCharacterDTO>(dbCharacter);

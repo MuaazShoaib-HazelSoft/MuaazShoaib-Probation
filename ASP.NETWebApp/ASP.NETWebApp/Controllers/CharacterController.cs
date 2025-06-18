@@ -2,11 +2,14 @@
 using ASP.NETWebApp.Models;
 using ASP.NETWebApp.Services.CharacterService;
 using ASP.NETWebApp.DTO.Character;
+using Microsoft.AspNetCore.Authorization;
 namespace ASP.NETWebApp.Controllers
   
 {
+    
     // To get all the api features. 
     [ApiController]
+    [Authorize]
     // To check the controller name
     [Route("[controller]")]
     /// </summary> Character class Controller defined to add,update,delete 
@@ -18,6 +21,7 @@ namespace ASP.NETWebApp.Controllers
         {
             _characterService = characterService;
         }
+        [AllowAnonymous]
         // Route to get all characters
         [HttpGet("GetAll")]
         public async Task<IActionResult> Get()
